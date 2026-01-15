@@ -1,0 +1,21 @@
+{
+    "version": "0.2.1",
+    "description": "Automatically save chats from Claude, Codex, and Gemini CLI to local Markdown files",
+    "homepage": "https://github.com/shayne-snap/waylog-cli",
+    "license": "Apache-2.0",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/shayne-snap/waylog-cli/releases/download/v0.2.1/waylog-windows-x64.zip",
+            "hash": "x",
+            "bin": "waylog.exe"
+        }
+    },
+    "checkver": "github",
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/shayne-snap/waylog-cli/releases/download/v$version/waylog-windows-x64.zip"
+            }
+        }
+    }
+}

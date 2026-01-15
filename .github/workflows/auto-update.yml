@@ -1,0 +1,39 @@
+name: Auto Update Manifests
+
+on:
+  schedule:
+    - cron: "0 */1 * * *" # Run every hour
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update-manifests:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Scoop
+        shell: powershell
+        run: |
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+          iwr -useb get.scoop.sh | iex
+          
+      - name: Update Manifests
+        shell: powershell
+        run: |
+          $scoop_dir = "$env:USERPROFILE\scoop"
+          $checkver_path = "$scoop_dir\apps\scoop\current\bin\checkver.ps1"
+          
+          # Iterate over all JSON files in the bucket directory
+          Get-ChildItem "bucket\*.json" | ForEach-Object {
+              Write-Host "Checking $($_.Name)..."
+              # -u flag updates the file directly if a new version is found
+              & $checkver_path $_.FullName -u
+          }
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add bucket/*.json
+          # Only commit/push if there are changes
+          git diff --staged --quiet || (git commit -m "chore: auto-update manifests" && git push)
